@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const LineController = require('../controllers/LineController');
+const LineController = require('@/controllers/LineController');
 
 // LINE OAuth callback
 router.get('/callback', LineController.handleCallback);

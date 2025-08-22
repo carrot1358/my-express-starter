@@ -16,6 +16,7 @@ module.exports = {
     channelSecret: process.env.LINE_CHANNEL_SECRET,
     messagingToken: process.env.LINE_MESSAGING_TOKEN,
     callbackUrl: process.env.LINE_CALLBACK_URL,
+    redirectFrontendUrl: process.env.LINE_REDIRECT_FRONTEND_URL,
   },
   
   // Frontend URL

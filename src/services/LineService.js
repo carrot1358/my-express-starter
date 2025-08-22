@@ -1,5 +1,6 @@
 const axios = require('axios');
 const querystring = require('querystring');
+const config = require('@/config/config');
 
 class LineService {
   // Handle LINE OAuth callback
@@ -10,9 +11,9 @@ class LineService {
         querystring.stringify({
           grant_type: 'authorization_code',
           code: code,
-          redirect_uri: process.env.LINE_CALLBACK_URL,
-          client_id: process.env.LINE_CHANNEL_ID,
-          client_secret: process.env.LINE_CHANNEL_SECRET,
+          redirect_uri: config.line.callbackUrl,
+          client_id: config.line.channelId,
+          client_secret: config.line.channelSecret,
         }),
         {
           headers: {
@@ -27,7 +28,7 @@ class LineService {
       const profile = await this.getUserProfile(access_token);
 
       // Create redirect URL with profile data
-      const redirectUrl = `http://localhost:3000/profile/?name=${encodeURIComponent(profile.displayName)}&picture=${encodeURIComponent(profile.pictureUrl)}`;
+      const redirectUrl = `${config.line.redirectFrontendUrl}/?name=${encodeURIComponent(profile.displayName)}&picture=${encodeURIComponent(profile.pictureUrl)}`;
 
       return { redirectUrl, profile, access_token, id_token };
     } catch (error) {
@@ -80,7 +81,7 @@ class LineService {
   static async generateLoginUrl() {
     try {
       const state = Math.random().toString(36).substring(7);
-      const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${process.env.LINE_CHANNEL_ID}&redirect_uri=${encodeURIComponent(process.env.LINE_CALLBACK_URL)}&state=${state}&scope=profile%20openid`;
+      const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${config.line.channelId}&redirect_uri=${encodeURIComponent(config.line.callbackUrl)}&state=${state}&scope=profile%20openid`;
       return loginUrl;
     } catch (error) {
       console.error('Generate login URL error:', error);

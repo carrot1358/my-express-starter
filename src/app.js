@@ -2,11 +2,11 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-const { defaultRateLimit, authRateLimit } = require('./middleware/rate-limit');
-const lineRoutes = require('./routes/lineRoutes');
-const userRoutes = require('./routes/userRoutes');
-const authRoutes = require('./routes/authRoutes');
-const productRoutes = require('./routes/productRoutes');
+const { defaultRateLimit, authRateLimit } = require('@/middleware/rate-limit');
+const lineRoutes = require('@/routes/lineRoutes');
+const userRoutes = require('@/routes/userRoutes');
+const authRoutes = require('@/routes/authRoutes');
+const productRoutes = require('@/routes/productRoutes');
 
 const app = express();
 

@@ -1,7 +1,7 @@
 const express = require('express');
-const ProductController = require('../controllers/ProductController');
-const { authenticateToken, requireRole, requireAdmin, requireSuperAdmin, Role } = require('../middleware/auth');
-const { rateLimit } = require('../middleware/rate-limit');
+const ProductController = require('@/controllers/ProductController');
+const { authenticateToken, requireRole, requireAdmin, requireSuperAdmin, Role } = require('@/middleware/auth');
+const { rateLimit } = require('@/middleware/rate-limit');
 
 const router = express.Router();
 
