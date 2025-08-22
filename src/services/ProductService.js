@@ -16,14 +16,88 @@ process.on('SIGINT', async () => {
 });
 
 class ProductService {
-  // Get all products
-  static async getAllProducts() {
+  // Get all products with optional search, pagination, and filtering
+  static async getAllProducts(options = {}) {
     try {
+      const { 
+        search,
+        page,
+        limit,
+        orderBy = 'createdAt',
+        order = 'desc'
+      } = options;
+
+      // Build where clause for search
+      let whereClause = {};
+      if (search && search.trim() !== '') {
+        whereClause = {
+          OR: [
+            {
+              name: {
+                contains: search.trim()
+              }
+            },
+            {
+              description: {
+                contains: search.trim()
+              }
+            }
+          ]
+        };
+      }
+
+      // Build order by clause
+      const orderByClause = {};
+      orderByClause[orderBy] = order;
+
+      // Handle pagination
+      if (page && limit) {
+        const pageNum = parseInt(page);
+        const limitNum = parseInt(limit);
+        
+        if (isNaN(pageNum) || pageNum < 1) {
+          const error = new Error('Page must be a positive number');
+          error.name = 'ValidationError';
+          throw error;
+        }
+
+        if (isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
+          const error = new Error('Limit must be between 1 and 100');
+          error.name = 'ValidationError';
+          throw error;
+        }
+
+        const skip = (pageNum - 1) * limitNum;
+
+        const [products, total] = await Promise.all([
+          prisma.product.findMany({
+            where: whereClause,
+            skip,
+            take: limitNum,
+            orderBy: orderByClause,
+          }),
+          prisma.product.count({ where: whereClause })
+        ]);
+
+        return {
+          products,
+          pagination: {
+            page: pageNum,
+            limit: limitNum,
+            total,
+            pages: Math.ceil(total / limitNum),
+            hasNext: pageNum < Math.ceil(total / limitNum),
+            hasPrev: pageNum > 1,
+          }
+        };
+      }
+
+      // Return all products without pagination
       const products = await prisma.product.findMany({
-        orderBy: {
-          createdAt: 'desc',
-        },
+        where: whereClause,
+        orderBy: orderByClause,
       });
+
       return products;
     } catch (error) {
       console.error('Get all products error:', error);
@@ -34,15 +108,14 @@ class ProductService {
   // Get product by ID
   static async getProductById(id) {
     try {
-      const productId = parseInt(id);
-      if (isNaN(productId) || productId <= 0) {
+      if (!id || typeof id !== 'string' || id.trim() === '') {
         const error = new Error('Invalid product ID');
         error.name = 'ValidationError';
         throw error;
       }
 
       const product = await prisma.product.findUnique({
-        where: { id: productId },
+        where: { id: id.trim() },
       });
       return product;
     } catch (error) {
@@ -89,12 +162,13 @@ class ProductService {
   // Update product (Admin only)
   static async updateProduct(id, updateData) {
     try {
-      const productId = parseInt(id);
-      if (isNaN(productId) || productId <= 0) {
+      if (!id || typeof id !== 'string' || id.trim() === '') {
         const error = new Error('Invalid product ID');
         error.name = 'ValidationError';
         throw error;
       }
+
+      const productId = id.trim();
 
       // Check if product exists
       const existingProduct = await prisma.product.findUnique({
@@ -136,12 +210,13 @@ class ProductService {
   // Delete product (Admin only)
   static async deleteProduct(id) {
     try {
-      const productId = parseInt(id);
-      if (isNaN(productId) || productId <= 0) {
+      if (!id || typeof id !== 'string' || id.trim() === '') {
         const error = new Error('Invalid product ID');
         error.name = 'ValidationError';
         throw error;
       }
+
+      const productId = id.trim();
       
       // Check if product exists
       const existingProduct = await prisma.product.findUnique({
@@ -163,89 +238,6 @@ class ProductService {
     }
   }
 
-  // Search products by name
-  static async searchProducts(searchTerm) {
-    try {
-      if (!searchTerm || searchTerm.trim() === '') {
-        return this.getAllProducts();
-      }
-
-      const products = await prisma.product.findMany({
-        where: {
-          OR: [
-            {
-              name: {
-                contains: searchTerm.trim(),
-                mode: 'insensitive'
-              }
-            },
-            {
-              description: {
-                contains: searchTerm.trim(),
-                mode: 'insensitive'
-              }
-            }
-          ]
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      });
-
-      return products;
-    } catch (error) {
-      console.error('Search products error:', error);
-      throw error;
-    }
-  }
-
-  // Get products with pagination
-  static async getProductsPaginated(page = 1, limit = 10) {
-    try {
-      const pageNum = parseInt(page);
-      const limitNum = parseInt(limit);
-      
-      if (isNaN(pageNum) || pageNum < 1) {
-        const error = new Error('Page must be a positive number');
-        error.name = 'ValidationError';
-        throw error;
-      }
-
-      if (isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
-        const error = new Error('Limit must be between 1 and 100');
-        error.name = 'ValidationError';
-        throw error;
-      }
-
-      const skip = (pageNum - 1) * limitNum;
-
-      const [products, total] = await Promise.all([
-        prisma.product.findMany({
-          skip,
-          take: limitNum,
-          orderBy: {
-            createdAt: 'desc',
-          },
-        }),
-        prisma.product.count()
-      ]);
-
-      return {
-        products,
-        pagination: {
-          page: pageNum,
-          limit: limitNum,
-          total,
-          pages: Math.ceil(total / limitNum),
-          hasNext: pageNum < Math.ceil(total / limitNum),
-          hasPrev: pageNum > 1,
-        }
-      };
-    } catch (error) {
-      console.error('Get products paginated error:', error);
-      throw error;
-    }
-  }
 
   // Get product statistics
   static async getProductStats() {

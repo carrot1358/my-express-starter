@@ -19,7 +19,7 @@ class ProductController {
   static async getProductsPaginated(req, res, next) {
     try {
       const { page = 1, limit = 10 } = req.query;
-      const result = await ProductService.getProductsPaginated(page, limit);
+      const result = await ProductService.getAllProducts({ page, limit });
       res.json({
         success: true,
         data: result.products,
@@ -56,7 +56,7 @@ class ProductController {
   static async searchProducts(req, res, next) {
     try {
       const { q: searchTerm } = req.query;
-      const products = await ProductService.searchProducts(searchTerm);
+      const products = await ProductService.getAllProducts({ search: searchTerm });
       res.json({
         success: true,
         data: products,
