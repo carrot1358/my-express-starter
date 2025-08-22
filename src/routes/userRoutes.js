@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('@/controllers/UserController');
+const { authenticateToken, requireRole, requireAdmin, requireSuperAdmin, Role } = require('@/middleware/auth');
+const { rateLimit } = require('@/middleware/rate-limit');
 
 // Get all users
 router.get('/', UserController.getAllUsers);

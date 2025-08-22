@@ -1,5 +1,5 @@
-const ProductService = require('../services/ProductService');
-const { Role } = require('../middleware/auth');
+const ProductService = require('@/services/ProductService');
+const { Role } = require('@/middleware/auth');
 
 class ProductController {
   // Get all products (Public - anyone can view)

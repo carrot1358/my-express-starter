@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const config = require('../config/config');
-const UserService = require('./UserService');
+const config = require('@/config/config');
+const UserService = require('@/services/UserService');
 
 class AuthService {
   // Generate JWT token with user data including role

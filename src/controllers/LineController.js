@@ -1,4 +1,4 @@
-const LineService = require('../services/LineService');
+const LineService = require('@/services/LineService');
 
 class LineController {
   // Handle LINE OAuth callback

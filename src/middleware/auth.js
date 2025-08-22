@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const config = require('../config/config');
+const config = require('@/config/config');
 
 // Role enum for easy reference
 const Role = {
