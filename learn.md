@@ -143,7 +143,8 @@ erDiagram
     Profile {
         string id PK
         string bio
-        string userId FK UK
+        string userId FK
+        string userId UK
     }
     
     Category {
