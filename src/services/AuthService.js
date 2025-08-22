@@ -12,7 +12,9 @@ class AuthService {
       email: user.email,
       role: user.role,
       firstName: user.firstName,
-      lastName: user.lastName
+      lastName: user.lastName,
+      phone: user.phone,
+      lineId: user.lineId
     };
 
     return jwt.sign(payload, config.jwt.secret, {
@@ -61,7 +63,7 @@ class AuthService {
   // Register new user
   static async register(userData) {
     try {
-      const { username, password, email, firstName, lastName, role = 'USER' } = userData;
+      const { username, password, email,  phone, firstName, lastName } = userData;
 
       // Validate required fields
       if (!username || !password || !firstName || !lastName) {
@@ -78,9 +80,10 @@ class AuthService {
         username,
         password: hashedPassword,
         email,
+        phone,
         firstName,
         lastName,
-        role
+        role: 'USER'
       });
 
       // Generate token

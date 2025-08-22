@@ -67,6 +67,27 @@ class LineController {
       next(error);
     }
   }
+
+  // Complete LINE registration
+  static async completeRegistration(req, res, next) {
+    try {
+      const registrationData = req.body;
+      
+      const result = await LineService.completeLineRegistration(registrationData);
+      
+      res.status(201).json({
+        success: true,
+        message: 'LINE registration completed successfully',
+        data: {
+          user: result.user,
+          token: result.token,
+          expiresIn: result.expiresIn
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = LineController;

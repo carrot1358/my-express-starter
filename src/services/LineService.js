@@ -27,13 +27,80 @@ class LineService {
       // Get user profile from LINE
       const profile = await this.getUserProfile(access_token);
 
-      // Create redirect URL with profile data
-      const redirectUrl = `${config.line.redirectFrontendUrl}/?name=${encodeURIComponent(profile.displayName)}&picture=${encodeURIComponent(profile.pictureUrl)}`;
+      // Check if user with this LINE ID already exists in database
+      const UserService = require('@/services/UserService');
+      const existingUser = await UserService.findUserByLineId(profile.userId);
+
+      let redirectUrl;
+      if (existingUser) {
+        // Existing user - redirect to login success page
+        redirectUrl = `${config.line.redirectFrontendUrl}/?name=${encodeURIComponent(profile.displayName)}&picture=${encodeURIComponent(profile.pictureUrl)}&lineId=${encodeURIComponent(profile.userId)}&existing=true`;
+      } else {
+        // New user - redirect to registration form
+        redirectUrl = `${config.line.redirectFrontendUrl}/?name=${encodeURIComponent(profile.displayName)}&picture=${encodeURIComponent(profile.pictureUrl)}&lineId=${encodeURIComponent(profile.userId)}`;
+      }
 
       return { redirectUrl, profile, access_token, id_token };
     } catch (error) {
       console.error('LINE OAuth callback error:', error.response?.data || error.message);
       throw new Error('Failed to process LINE OAuth callback');
+    }
+  }
+
+  // Complete LINE registration with additional user data
+  static async completeLineRegistration(registrationData) {
+    try {
+      const { lineId, username, password, phone, firstName, lastName } = registrationData;
+
+      // Validate required fields
+      if (!lineId || !username || !password || !firstName || !lastName) {
+        const error = new Error('LINE ID, username, password, first name, and last name are required');
+        error.name = 'ValidationError';
+        throw error;
+      }
+
+      // Check if user with this LINE ID already exists
+      const UserService = require('@/services/UserService');
+      const existingUser = await UserService.findUserByLineId(lineId);
+      
+      if (existingUser) {
+        const error = new Error('User with this LINE ID already exists');
+        error.name = 'ValidationError';
+        throw error;
+      }
+
+      // Hash password
+      const bcrypt = require('bcryptjs');
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      // Create new user with LINE ID
+      const userData = {
+        username,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        phone: phone || null,
+        lineId,
+        role: 'USER'
+      };
+
+      const newUser = await UserService.createUser(userData);
+
+      // Generate JWT token
+      const AuthService = require('@/services/AuthService');
+      const token = AuthService.generateToken(newUser);
+
+      // Return user data without password and token
+      const { password: _, ...userWithoutPassword } = newUser;
+
+      return {
+        user: userWithoutPassword,
+        token,
+        expiresIn: config.jwt.expiresIn
+      };
+    } catch (error) {
+      console.error('Complete LINE registration error:', error);
+      throw error;
     }
   }
 

@@ -102,13 +102,14 @@ class UserService {
           OR: [
             { username },
             { email: email || null },
-            { lineId: lineId || null }
+            { lineId: lineId || null },
+            { phone: phone || null }
           ].filter(condition => Object.values(condition)[0] !== null)
         }
       });
 
       if (existingUser) {
-        const error = new Error('User already exists with this username, email, or LINE ID');
+        const error = new Error('User already exists with this username, email, phone, or LINE ID');
         error.name = 'ValidationError';
         throw error;
       }
@@ -270,8 +271,11 @@ class UserService {
         where: { lineId },
         select: {
           id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          phone: true,
           email: true,
-          name: true,
           lineId: true,
           role: true,
           createdAt: true,

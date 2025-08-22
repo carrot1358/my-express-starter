@@ -14,4 +14,7 @@ router.get('/login', LineController.getLoginUrl);
 // Get user profile from LINE
 router.get('/profile', LineController.getUserProfile);
 
+// Complete LINE registration
+router.post('/complete-registration', LineController.completeRegistration);
+
 module.exports = router;
