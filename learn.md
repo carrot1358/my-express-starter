@@ -1,6 +1,6 @@
-# 📚 คู่มือการพัฒนา Backend API ด้วย Node.js, Express และ Prisma
+# คู่มือการพัฒนา Backend API ด้วย Node.js, Express และ Prisma
 
-## 🏗️ บทที่ 1: โครงสร้างโปรเจคและสถาปัตยกรรม
+## บทที่ 1: โครงสร้างโปรเจคและสถาปัตยกรรม
 
 ### โครงสร้างโปรเจค
 ```
@@ -47,7 +47,7 @@ graph TD
 
 ---
 
-## 🗄️ บทที่ 2: การจัดการฐานข้อมูลด้วย Prisma
+## บทที่ 2: การจัดการฐานข้อมูลด้วย Prisma
 
 ### คำสั่ง Prisma ที่สำคัญ
 
@@ -208,7 +208,7 @@ model Product {
 
 ---
 
-## 🚀 บทที่ 3: การเพิ่ม Table ใหม่
+## บทที่ 3: การเพิ่ม Table ใหม่
 
 ### ขั้นตอนการเพิ่ม Table
 
@@ -416,7 +416,7 @@ app.use('/api/categories', categoryRoutes);
 
 ---
 
-## 🔐 บทที่ 4: การจัดการ Authentication และ Authorization
+## บทที่ 4: การจัดการ Authentication และ Authorization
 
 ### JWT Token Structure
 
@@ -518,125 +518,7 @@ router.post('/admin-only',
 
 ---
 
-## 📡 บทที่ 5: การสร้าง API Endpoint
-
-### RESTful API Pattern
-
-```mermaid
-graph LR
-    A[GET] --> B[ดึงข้อมูล]
-    C[POST] --> D[สร้างข้อมูลใหม่]
-    E[PUT] --> F[อัปเดตข้อมูลทั้งหมด]
-    G[PATCH] --> H[อัปเดตข้อมูลบางส่วน]
-    I[DELETE] --> J[ลบข้อมูล]
-    
-    style A fill:#e8f5e8
-    style C fill:#fff3e0
-    style E fill:#e3f2fd
-    style G fill:#f3e5f5
-    style I fill:#ffebee
-```
-
-#### 1. GET - ดึงข้อมูล
-```javascript
-// GET /api/products
-static async getAll(req, res, next) {
-  try {
-    const { page = 1, limit = 10, search } = req.query;
-    
-    const products = await ProductService.findAll({
-      page: parseInt(page),
-      limit: parseInt(limit),
-      search
-    });
-    
-    res.json({
-      success: true,
-      data: products.items,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total: products.total,
-        pages: Math.ceil(products.total / limit)
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-```
-
-#### 2. POST - สร้างข้อมูลใหม่
-```javascript
-// POST /api/products
-static async create(req, res, next) {
-  try {
-    // Validation
-    const { name, price, description } = req.body;
-    
-    if (!name || !price) {
-      return res.status(400).json({
-        success: false,
-        error: 'Name and price are required'
-      });
-    }
-
-    const product = await ProductService.create(req.body);
-    
-    res.status(201).json({
-      success: true,
-      message: 'Product created successfully',
-      data: product
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-```
-
-#### 3. PUT/PATCH - อัปเดตข้อมูล
-```javascript
-// PUT /api/products/:id
-static async update(req, res, next) {
-  try {
-    const { id } = req.params;
-    const updateData = req.body;
-    
-    const product = await ProductService.update(id, updateData);
-    
-    res.json({
-      success: true,
-      message: 'Product updated successfully',
-      data: product
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-```
-
-#### 4. DELETE - ลบข้อมูล
-```javascript
-// DELETE /api/products/:id
-static async delete(req, res, next) {
-  try {
-    const { id } = req.params;
-    
-    await ProductService.delete(id);
-    
-    res.json({
-      success: true,
-      message: 'Product deleted successfully'
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-```
-
----
-
-## 🛡️ บทที่ 6: การจัดการ Error และ Validation
+## บทที่ 6: การจัดการ Error
 
 ### Global Error Handler
 
@@ -698,40 +580,9 @@ app.use((err, req, res, next) => {
 });
 ```
 
-### Input Validation
-```javascript
-// src/middleware/validation.js
-const validateProduct = (req, res, next) => {
-  const { name, price, description } = req.body;
-  const errors = [];
-  
-  if (!name || name.trim().length < 2) {
-    errors.push('Name must be at least 2 characters long');
-  }
-  
-  if (!price || isNaN(price) || price <= 0) {
-    errors.push('Price must be a positive number');
-  }
-  
-  if (description && description.length > 500) {
-    errors.push('Description must be less than 500 characters');
-  }
-  
-  if (errors.length > 0) {
-    return res.status(400).json({
-      success: false,
-      error: 'Validation failed',
-      details: errors
-    });
-  }
-  
-  next();
-};
-```
-
 ---
 
-## 🚦 บทที่ 7: การจัดการ Rate Limiting
+## บทที่ 7: การจัดการ Rate Limiting
 
 ### Rate Limiting Middleware
 
@@ -772,78 +623,198 @@ module.exports = { defaultRateLimit, authRateLimit };
 
 ---
 
-## 🚀 บทที่ 8: การ Deploy และ Production
+## บทที่ 8: การ Deploy และ Production
 
-### Environment Variables
-```bash
-# .env
-NODE_ENV=production
-PORT=3000
-DATABASE_URL="mysql://user:password@localhost:3306/database"
-JWT_SECRET="your-super-secret-jwt-key"
-JWT_EXPIRES_IN="24h"
+Work in progress
+
+---
+
+## บทที่ 9: การสร้าง Validation Utilities สำหรับข้อมูลไทย
+
+### ภาพรวมของ Validation System
+
+```mermaid
+graph TD
+    A[Request Data] --> B[Controller/Service]
+    B --> C{Validation Check}
+    C -->|Valid| D[Clean Data & Continue]
+    C -->|Invalid| E[Return Error Response]
+    D --> F[Process Business Logic]
+    E --> G[Client Error Response]
+    
+    style D fill:#e8f5e8
+    style F fill:#e8f5e8
+    style E fill:#ffebee
+    style G fill:#ffebee
 ```
 
-### Production Scripts
-```json
-{
-  "scripts": {
-    "start": "node build/server.js",
-    "build": "babel src -d build",
-    "postinstall": "npm run prisma:generate"
+### โครงสร้างไฟล์ Validation
+
+```
+src/
+├── utils/
+│ └── validation.js # Validation utilities สำหรับข้อมูลไทย
+└── controllers/ # ใช้งาน validation ใน controller
+└── services/ # ใช้งาน validation ใน service
+```
+
+**กฎการตรวจสอบเบอร์มือถือไทย:**
+- ✅ ต้องขึ้นต้นด้วย `0`
+- ✅ หลักที่ 2 ต้องเป็น `6`, `8`, หรือ `9`
+- ✅ ต้องมีทั้งหมด 10 หลัก
+- ✅ รองรับการใส่เครื่องหมายขีด, ช่องว่าง, และวงเล็บ
+
+
+**กฎการตรวจสอบเลขบัตรประจำตัวประชาชนไทย:**
+- ✅ ต้องมีทั้งหมด 13 หลัก
+- ✅ ต้องเป็นตัวเลขทั้งหมด
+- ✅ ต้องผ่านการตรวจสอบ checksum ตามสูตรของกรมการปกครอง
+
+### 1. การใช้งานใน Controller
+
+```javascript
+// ตัวอย่างการใช้งานใน PostController หรือ CategoryController
+const ValidationUtil = require('@/utils/validation');
+
+class PostController {
+  static async create(req, res, next) {
+    try {
+      const { title, content, phoneNumber, nationalID } = req.body;
+      
+      // Validation สำหรับข้อมูลที่จำเป็น
+      if (!title || !content) {
+        return res.status(400).json({
+          success: false,
+          error: 'Title and content are required'
+        });
+      }
+
+      // Validation เบอร์มือถือ (ถ้ามี)
+      if (phoneNumber && !ValidationUtil.validateThaiPhoneNumber(phoneNumber)) {
+        return res.status(400).json({
+          success: false,
+          error: ValidationUtil.getPhoneNumberErrorMessage('phoneNumber')
+        });
+      }
+
+      // Validation เลขบัตรประจำตัวประชาชน (ถ้ามี)
+      if (nationalID && !ValidationUtil.validateThaiNationalID(nationalID)) {
+        return res.status(400).json({
+          success: false,
+          error: ValidationUtil.getNationalIDErrorMessage('nationalID')
+        });
+      }
+
+      // ทำความสะอาดข้อมูล (ถ้ามี)
+      const cleanData = {
+        title,
+        content,
+        authorId: req.user.id
+      };
+
+      if (phoneNumber) {
+        cleanData.phoneNumber = ValidationUtil.cleanThaiPhoneNumber(phoneNumber);
+      }
+
+      if (nationalID) {
+        cleanData.nationalID = ValidationUtil.cleanThaiNationalID(nationalID);
+      }
+
+      const post = await PostService.create(cleanData);
+      
+      res.status(201).json({
+        success: true,
+        message: 'Post created successfully',
+        data: post
+      });
+    } catch (error) {
+      next(error);
+    }
   }
 }
 ```
 
-### PM2 Configuration
+### 2. การใช้งานใน Service
 ```javascript
-// ecosystem.config.js
-module.exports = {
-  apps: [{
-    name: 'backend-api',
-    script: 'build/server.js',
-    instances: 'max',
-    exec_mode: 'cluster',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 3000
+// ตัวอย่างการใช้งานใน PostService
+const ValidationUtil = require('@/utils/validation');
+
+class PostService {
+  static async create(data) {
+    // Validation ใน service level
+    if (data.phoneNumber && !ValidationUtil.validateThaiPhoneNumber(data.phoneNumber)) {
+      throw new Error('Invalid phone number format');
     }
-  }]
-};
+
+    if (data.nationalID && !ValidationUtil.validateThaiNationalID(data.nationalID)) {
+      throw new Error('Invalid national ID format');
+    }
+
+    // ทำความสะอาดข้อมูลก่อนบันทึก
+    const cleanData = { ...data };
+    
+    if (data.phoneNumber) {
+      cleanData.phoneNumber = ValidationUtil.cleanThaiPhoneNumber(data.phoneNumber);
+    }
+
+    if (data.nationalID) {
+      cleanData.nationalID = ValidationUtil.cleanThaiNationalID(data.nationalID);
+    }
+
+    return await prisma.post.create({
+      data: cleanData,
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            firstName: true,
+            lastName: true
+          }
+        }
+      }
+    });
+  }
+}
+```
+
+### 3. ตัวอย่างข้อมูลที่รองรับ
+
+#### เบอร์มือถือไทย
+```javascript
+// ✅ ข้อมูลที่ถูกต้อง
+'0812345678'      // 10 หลัก, ขึ้นต้นด้วย 0
+'0912345678'      // 10 หลัก, ขึ้นต้นด้วย 0
+'0612345678'      // 10 หลัก, ขึ้นต้นด้วย 0
+'08-123-4567'     // มีเครื่องหมายขีด (จะถูกทำความสะอาด)
+'08 123 4567'     // มีช่องว่าง (จะถูกทำความสะอาด)
+'(08)123-4567'    // มีวงเล็บ (จะถูกทำความสะอาด)
+
+// ❌ ข้อมูลที่ไม่ถูกต้อง
+'081234567'       // ไม่ครบ 10 หลัก
+'1812345678'      // ไม่ขึ้นต้นด้วย 0
+'08123456789'     // เกิน 10 หลัก
+'081234567a'      // มีตัวอักษร
+```
+
+#### เลขบัตรประจำตัวประชาชนไทย
+```javascript
+// ✅ ข้อมูลที่ถูกต้อง
+'1234567890121'           // 13 หลัก, checksum ผ่าน
+'123-456-789-012-1'      // มีเครื่องหมายขีด (จะถูกทำความสะอาด)
+'123 456 789 012 1'      // มีช่องว่าง (จะถูกทำความสะอาด)
+
+// ❌ ข้อมูลที่ไม่ถูกต้อง
+'1234567890123'           // checksum ไม่ผ่าน
+'123456789012'            // ไม่ครบ 13 หลัก
+'12345678901234'          // เกิน 13 หลัก
+'123456789012a'           // มีตัวอักษร
 ```
 
 ---
 
-## 📋 สรุปขั้นตอนการเพิ่ม Feature ใหม่
 
-### 1. เพิ่ม Table
-- แก้ไข `prisma/schema.prisma`
-- รัน `npx prisma migrate dev`
-- รัน `npx prisma generate`
-
-### 2. เพิ่ม Service
-- สร้างไฟล์ `src/services/[Name]Service.js`
-- เขียน CRUD operations
-
-### 3. เพิ่ม Controller
-- สร้างไฟล์ `src/controllers/[Name]Controller.js`
-- เขียน HTTP methods
-
-### 4. เพิ่ม Route
-- สร้างไฟล์ `src/routes/[name]Routes.js`
-- กำหนด endpoints
-
-### 5. เพิ่มใน app.js
-- import route ใหม่
-- ใช้ `app.use('/api/[name]', [name]Routes)`
-
-### 6. ทดสอบ
-- รัน `npm run dev`
-- ทดสอบ API ด้วย Postman หรือ tools อื่นๆ
-
----
-
-## 🛠️ คำสั่งที่ใช้บ่อย
+## คำสั่งที่ใช้บ่อย
 
 ```bash
 # Development
@@ -864,41 +835,4 @@ npx prisma db seed           # รัน seed data
 npm start                     # รัน server ในโหมด production
 npm run build                # Build โปรเจค
 ```
-
 ---
-
-## 📚 แหล่งข้อมูลเพิ่มเติม
-
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [Express.js Documentation](https://expressjs.com/)
-- [JWT.io](https://jwt.io/)
-- [Node.js Best Practices](https://github.com/goldbergyoni/nodebestpractices)
-
----
-
-## 🎯 แบบฝึกหัด
-
-### แบบฝึกหัดที่ 1: สร้าง Order System
-สร้างระบบ Order ที่มี:
-- Model Order, OrderItem
-- API endpoints สำหรับ CRUD operations
-- Validation และ error handling
-- Authentication และ authorization
-
-### แบบฝึกหัดที่ 2: สร้าง Review System
-สร้างระบบ Review ที่มี:
-- Model Review ที่เชื่อมกับ Product และ User
-- Rating system (1-5 stars)
-- API สำหรับดึง reviews ของ product
-- Pagination และ filtering
-
-### แบบฝึกหัดที่ 3: สร้าง Search API
-สร้าง API search ที่มี:
-- Full-text search ในชื่อและคำอธิบาย
-- Filtering โดย category, price range
-- Sorting โดย price, name, date
-- Pagination
-
----
-
-เนื้อหานี้ครอบคลุมทุกส่วนที่สำคัญในการพัฒนา backend API ด้วย Node.js, Express และ Prisma พร้อมกับ Mermaid diagrams เพื่อให้เข้าใจได้ง่ายขึ้นครับ!
