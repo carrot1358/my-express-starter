@@ -111,6 +111,7 @@ enum Role {
   USER
 }
 ```
+[Prisma Schema Reference](https://www.prisma.io/docs/orm/reference/prisma-schema-reference "Prisma Schema Reference")
 
 #### ความสัมพันธ์ระหว่าง Model
 
@@ -139,7 +140,7 @@ erDiagram
         datetime createdAt
         datetime updatedAt
     }
-    
+
     Profile {
         string id PK
         string bio
@@ -155,6 +156,7 @@ erDiagram
         datetime updatedAt
     }
 ```
+
 
 ```prisma
 model User {
@@ -185,32 +187,12 @@ model Category {
   id       String @id @default(uuid())
   name     String @unique
   posts    Post[]
-}
 ```
 
-#### Field Types และ Attributes
-```prisma
-model Product {
-  id          String   @id @default(uuid())
-  name        String   @db.VarChar(255)
-  price       Decimal  @db.Decimal(10, 2)
-  isActive    Boolean  @default(true)
-  tags        String[] // Array of strings
-  metadata    Json     // JSON field
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
-  @@index([name])
-  @@unique([name, price])
-  @@map("products")
-}
-```
+## บทที่ 3: การเพิ่ม Feature ใหม่
 
----
-
-## บทที่ 3: การเพิ่ม Table ใหม่
-
-### ขั้นตอนการเพิ่ม Table
+### ขั้นตอนการเพิ่ม Feature
 
 ```mermaid
 flowchart TD
@@ -251,9 +233,10 @@ model Product {
 }
 ```
 
-#### 2. สร้าง Migration
+#### 2. สร้าง Migration และ Genarate Prisma Client
 ```bash
 npx prisma migrate dev --name add_category_table
+npx prisma generate
 ```
 
 #### 3. สร้าง Service
@@ -305,6 +288,175 @@ class CategoryService {
 
 module.exports = CategoryService;
 ```
+
+#### ตัวอย่างและคำอธิบาย Prisma Client Methods ที่ใช้บ่อย
+
+<table>
+  <tr>
+    <th>Method</th>
+    <th>คำอธิบาย</th>
+    <th>ตัวอย่างการใช้งาน</th>
+  </tr>
+  <tr>
+    <td><b>create</b></td>
+    <td>สร้างข้อมูลใหม่ 1 รายการ</td>
+    <td>
+      <pre><code>
+await prisma.category.create({
+    data: { 
+    name: "อาหาร",
+    description: "หมวดอาหาร" 
+  }
+})
+      </code></pre>
+      </td>
+  </tr>
+  <tr>
+    <td><b>createMany</b></td>
+    <td>สร้างข้อมูลใหม่หลายรายการ</td>
+    <td>
+        <pre><code>
+await prisma.category.createMany({
+    data: [{
+        name: "อาหาร"
+    }, {
+        name: "เครื่องดื่ม"
+    }]
+})
+        </code></pre></td>
+  </tr>
+  <tr>
+    <td><b>findUnique</b></td>
+    <td>ค้นหาข้อมูล 1 รายการ โดยใช้ key ที่ unique (เช่น id หรือ name)</td>
+    <td>
+        <pre><code>
+await prisma.category.findUnique({
+    where: {
+        id: "..."
+    }
+})
+        </code></pre></td>
+  </tr>
+  <tr>
+    <td><b>findFirst</b></td>
+    <td>ค้นหาข้อมูล 1 รายการแรกที่ตรงเงื่อนไข</td>
+    <td>
+        <pre><code>
+await prisma.category.findFirst({
+    where: { name: { contains: "อา" } }
+})
+        </code></pre></td>
+  </tr>
+  <tr>
+    <td><b>findMany</b></td>
+    <td>ค้นหาข้อมูลหลายรายการ</td>
+    <td>
+        <pre><code>
+await prisma.category.findMany({
+    where: { name: { contains: "อา" } }
+})
+        </code></pre></td>
+  </tr>
+  <tr>
+    <td><b>update</b></td>
+    <td>อัปเดตข้อมูล 1 รายการ</td>
+    <td>
+        <pre><code>
+await prisma.category.update({
+    where: { id: "..." },
+    data: { name: "ใหม่" }
+})
+        </code></pre></td>
+  </tr>
+  <tr>
+    <td><b>updateMany</b></td>
+    <td>อัปเดตข้อมูลหลายรายการ</td>
+    <td>
+        <pre><code>
+await prisma.category.updateMany({
+    where: { name: "อาหาร" },
+    data: { description: "หมวดอาหาร" }
+})
+        </code></pre></td>
+  </tr>
+  <tr>
+    <td><b>upsert</b></td>
+    <td>ถ้ามีข้อมูลอยู่แล้วให้อัปเดต ถ้าไม่มีให้สร้างใหม่</td>
+    <td>
+        <pre><code>
+await prisma.category.upsert({
+    where: { id: "..." },
+    update: { name: "ใหม่" },
+    create: { name: "ใหม่" }
+})
+        </code></pre></td>
+  </tr>
+  <tr>
+    <td><b>delete</b></td>
+    <td>ลบข้อมูล 1 รายการ</td>
+    <td>
+        <pre><code>
+await prisma.category.delete({
+    where: { id: "..." }
+})
+        </code></pre></td>
+  </tr>
+  <tr>
+    <td><b>deleteMany</b></td>
+    <td>ลบข้อมูลหลายรายการ</td>
+    <td>
+        <pre><code>
+await prisma.category.deleteMany({
+    where: { name: "อาหาร" }
+})
+        </code></pre></td>
+  </tr>
+  <tr>
+    <td><b>count</b></td>
+    <td>นับจำนวนข้อมูล</td>
+    <td>
+        <pre><code>
+await prisma.category.count({
+    where: { name: { contains: "อา" } }
+})
+        </code></pre></td>
+  </tr>
+  <tr>
+    <td><b>aggregate</b></td>
+    <td>คำนวณค่ารวม เช่น sum, avg, min, max</td>
+    <td>
+        <pre><code>
+await prisma.category.aggregate({
+    _count: true,
+    _min: { createdAt: true }
+})
+        </code></pre></td>
+  </tr>
+  <tr>
+    <td><b>groupBy</b></td>
+    <td>จัดกลุ่มข้อมูล</td>
+    <td>
+        <pre><code>
+await prisma.category.groupBy({
+    by: ["name"],
+    _count: { _all: true }
+})
+        </code></pre></td>
+  </tr>
+</table>
+
+<blockquote>
+<b>หมายเหตุ:</b> ทุก method สามารถเพิ่ม <code>include</code> หรือ <code>select</code> เพื่อดึงข้อมูลความสัมพันธ์ เช่น products ได้ เช่น<br>
+<pre><code>await prisma.category.findMany({
+  include: { products: true }
+})
+</code></pre>
+</blockquote>
+
+[Prisma Client API Reference](https://www.prisma.io/docs/orm/reference/prisma-client-reference "Prisma Client API")
+
+---
+
 
 #### 4. สร้าง Controller
 ```javascript
@@ -518,71 +670,8 @@ router.post('/admin-only',
 
 ---
 
-## บทที่ 6: การจัดการ Error
 
-### Global Error Handler
-
-```mermaid
-flowchart TD
-    A[Request] --> B{Error Occurs?}
-    B -->|No| C[Continue]
-    B -->|Yes| D[Error Handler]
-    D --> E{Error Type?}
-    E -->|Validation| F[400 Bad Request]
-    E -->|Authentication| G[401 Unauthorized]
-    E -->|Authorization| H[403 Forbidden]
-    E -->|Not Found| I[404 Not Found]
-    E -->|Prisma Error| J[400/404 Database Error]
-    E -->|Other| K[500 Internal Server Error]
-    
-    style F fill:#ffebee
-    style G fill:#fff3e0
-    style H fill:#fff3e0
-    style I fill:#e8f5e8
-    style J fill:#e3f2fd
-    style K fill:#ffebee
-```
-
-```javascript
-// src/app.js
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  
-  // Prisma Errors
-  if (err.code === 'P2002') {
-    return res.status(400).json({
-      success: false,
-      error: 'Duplicate field value'
-    });
-  }
-  
-  if (err.code === 'P2025') {
-    return res.status(404).json({
-      success: false,
-      error: 'Record not found'
-    });
-  }
-  
-  // Validation Errors
-  if (err.name === 'ValidationError') {
-    return res.status(400).json({
-      success: false,
-      error: 'Validation Error',
-      details: err.message
-    });
-  }
-  
-  // Default error
-  res.status(500).json({
-    success: false,
-    error: 'Internal Server Error'
-  });
-});
-```
-
----
-
-## บทที่ 7: การจัดการ Rate Limiting
+## บทที่ 5: การจัดการ Rate Limiting
 
 ### Rate Limiting Middleware
 
@@ -623,13 +712,8 @@ module.exports = { defaultRateLimit, authRateLimit };
 
 ---
 
-## บทที่ 8: การ Deploy และ Production
 
-Work in progress
-
----
-
-## บทที่ 9: การสร้าง Validation Utilities สำหรับข้อมูลไทย
+## บทที่ 6: การจัดการ Validation Utilities 
 
 ### ภาพรวมของ Validation System
 
@@ -814,6 +898,82 @@ class PostService {
 ---
 
 
+## บทที่ 7: การใช้ Upload file Utilities
+
+Work in progress
+
+---
+
+## บทที่ 8: การจัดการ Error
+
+### Global Error Handler
+
+```mermaid
+flowchart TD
+    A[Request] --> B{Error Occurs?}
+    B -->|No| C[Continue]
+    B -->|Yes| D[Error Handler]
+    D --> E{Error Type?}
+    E -->|Validation| F[400 Bad Request]
+    E -->|Authentication| G[401 Unauthorized]
+    E -->|Authorization| H[403 Forbidden]
+    E -->|Not Found| I[404 Not Found]
+    E -->|Prisma Error| J[400/404 Database Error]
+    E -->|Other| K[500 Internal Server Error]
+    
+    style F fill:#ffebee
+    style G fill:#fff3e0
+    style H fill:#fff3e0
+    style I fill:#e8f5e8
+    style J fill:#e3f2fd
+    style K fill:#ffebee
+```
+
+```javascript
+// src/app.js
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  
+  // Prisma Errors
+  if (err.code === 'P2002') {
+    return res.status(400).json({
+      success: false,
+      error: 'Duplicate field value'
+    });
+  }
+  
+  if (err.code === 'P2025') {
+    return res.status(404).json({
+      success: false,
+      error: 'Record not found'
+    });
+  }
+  
+  // Validation Errors
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({
+      success: false,
+      error: 'Validation Error',
+      details: err.message
+    });
+  }
+  
+  // Default error
+  res.status(500).json({
+    success: false,
+    error: 'Internal Server Error'
+  });
+});
+```
+
+---
+
+## บทที่ 9: การ Deploy และ Production
+
+Work in progress
+
+---
+
 ## คำสั่งที่ใช้บ่อย
 
 ```bash
@@ -835,4 +995,3 @@ npx prisma db seed           # รัน seed data
 npm start                     # รัน server ในโหมด production
 npm run build                # Build โปรเจค
 ```
----
