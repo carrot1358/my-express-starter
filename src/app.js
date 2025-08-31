@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const { defaultRateLimit, authRateLimit } = require('@/middleware/rate-limit');
+const errorHandler = require('@/middleware/errorHandler');
 const lineRoutes = require('@/routes/lineRoutes');
 const userRoutes = require('@/routes/userRoutes');
 const authRoutes = require('@/routes/authRoutes');
@@ -39,36 +40,6 @@ app.use((req, res) => {
 });
 
 // Global error handler - must be last
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  
-  // Handle specific error types
-  if (err.name === 'ValidationError') {
-    return res.status(400).json({ 
-      error: 'Validation Error', 
-      details: err.message 
-    });
-  }
-
-  if (err.name === 'AuthenticationError') {
-    return res.status(401).json({ 
-      error: 'Authentication Error', 
-      details: err.message 
-    });
-  }
-  
-  if (err.name === 'PrismaClientKnownRequestError') {
-    return res.status(400).json({ 
-      error: 'Database Error', 
-      details: err.message 
-    });
-  }
-  
-  // Default error
-  res.status(500).json({ 
-    error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
-  });
-});
+app.use(errorHandler);
 
 module.exports = app;
